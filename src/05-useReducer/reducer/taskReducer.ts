@@ -1,3 +1,6 @@
+import * as zod from "zod";
+import { id } from "zod/locales";
+
 interface Todo {
   id: number;
   text: string;
@@ -16,19 +19,52 @@ export type TaskAction =
   | { type: "TOGLE_TODO"; payload: number }
   | { type: "DELETE_TODO"; payload: number };
 
+/** Validacion de objetos */
+const TodoSchema = zod.object({
+  id: zod.number(),
+  text: zod.string(),
+  completed: zod.boolean(),
+});
+
+const TaskStateSchema = zod.object({
+  todos: zod.array(TodoSchema),
+  length: zod.number(),
+  completed: zod.number(),
+  pending: zod.number(),
+});
+
+export const getTasksInitialState = (): TaskState => {
+  const localStorageState = localStorage.getItem("task-state");
+
+  if (!localStorageState) {
+    return {
+      todos: [],
+      completed: 0,
+      length: 0,
+      pending: 0,
+    };
+  }
+
+  // Validar mediante ZOD
+  const result = TaskStateSchema.safeParse(JSON.parse(localStorageState));
+
+  if (result.error) {
+    console.log(result.error);
+    return {
+      todos: [],
+      completed: 0,
+      length: 0,
+      pending: 0,
+    };
+  }
+
+  //* Cuidado porque el objeto puede haber sido manipulado
+  return result.data;
+};
+
 //**  Siempre recibe dos parametros y siempre debe de
 // ** devolver el primer tipo que recibe
 // const taskReducer = (state, action): state => { return state }
-
-export const getTasksInitialState = (): TaskState => {
-  return {
-    todos: [],
-    completed: 0,
-    length: 0,
-    pending: 0,
-  };
-};
-
 export const taskReducer = (
   state: TaskState,
   action: TaskAction,
