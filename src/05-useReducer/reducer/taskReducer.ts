@@ -20,6 +20,15 @@ export type TaskAction =
 // ** devolver el primer tipo que recibe
 // const taskReducer = (state, action): state => { return state }
 
+export const getTasksInitialState = (): TaskState => {
+  return {
+    todos: [],
+    completed: 0,
+    length: 0,
+    pending: 0,
+  };
+};
+
 export const taskReducer = (
   state: TaskState,
   action: TaskAction,
