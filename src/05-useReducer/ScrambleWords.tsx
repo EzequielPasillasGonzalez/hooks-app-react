@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { SkipForward, Play } from "lucide-react";
+import confetti from "canvas-confetti";
 
 const GAME_WORDS = [
   "REACT",
@@ -26,7 +27,7 @@ const GAME_WORDS = [
 
 // Esta función mezcla el arreglo para que siempre sea aleatorio
 const shuffleArray = (array: string[]) => {
-  return array.sort(() => Math.random() - 0.5);
+  return [...array].sort(() => Math.random() - 0.5);
 };
 
 // Esta función mezcla las letras de la palabra
@@ -52,19 +53,79 @@ export const ScrambleWords = () => {
 
   const [isGameOver, setIsGameOver] = useState(false);
 
+  useEffect(() => {
+    if (errorCounter < 3) return;
+
+    setIsGameOver(true);
+    return () => {};
+  }, [errorCounter]);
+
+  const goToNextWord = () => {
+    if (words.length == 0) {
+      setIsGameOver(true);
+      return;
+    }
+
+    let index = words.indexOf(currentWord);
+
+    index += 1;
+
+    let newWord = "";
+    if (index >= words.length) {
+      newWord = words[0];
+    } else {
+      newWord = words[index];
+    }
+
+    if (newWord === "") {
+      setIsGameOver(true);
+      return;
+    }
+
+    setCurrentWord(newWord);
+
+    setScrambledWord(scrambleWord(newWord));
+  };
+
   const handleGuessSubmit = (e: React.SubmitEvent) => {
     // Previene el refresh de la página
     e.preventDefault();
-    // Implementar lógica de juego
-    console.log("Intento de adivinanza:", guess, currentWord);
+
+    if (guess === currentWord) {
+      confetti({
+        spread: 120,
+        particleCount: 100,
+      });
+      setPoints((prev) => (prev += 1));
+      const newListOfWords = words.filter((word) => word != currentWord);
+      setWords(newListOfWords);
+      goToNextWord();
+    } else {
+      setErrorCounter((prev) => (prev += 1));
+    }
+
+    setGuess("");
   };
 
   const handleSkip = () => {
-    console.log("Palabra saltada");
+    if (skipCounter > 3) {
+      return;
+    }
+    setSkipCounter((prev) => prev + 1);
+    goToNextWord();
   };
 
   const handlePlayAgain = () => {
-    console.log("Jugar de nuevo");
+    const newShuffledWords = shuffleArray(GAME_WORDS);
+    const firstWord = newShuffledWords[0];
+    setSkipCounter(0);
+    setErrorCounter(0);
+    setPoints(0);
+    setGuess("");
+    setIsGameOver(false);
+    setWords(newShuffledWords);
+    setCurrentWord(firstWord);
+    setScrambledWord(scrambleWord(firstWord));
   };
 
   //! Si ya no hay palabras para jugar, se muestra el mensaje de fin de juego
@@ -98,7 +159,7 @@ export const ScrambleWords = () => {
             Palabras desordenadas
           </h1>
           <p className="text-gray-600">
-            Desordena las letras para encontrar la palabra!
+            Ordena las letras para encontrar la palabra!
           </p>
         </div>
 
