@@ -1,123 +1,132 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { SkipForward, Play } from "lucide-react";
 import confetti from "canvas-confetti";
-import {
-  getInitialState,
-  scrambleWordsReducer,
-} from "./reducer/scrambleWordReducer.ts";
+
+const GAME_WORDS = [
+  "REACT",
+  "JAVASCRIPT",
+  "TYPESCRIPT",
+  "HTML",
+  "ANGULAR",
+  "SOLID",
+  "NODE",
+  "VUEJS",
+  "SVELTE",
+  "EXPRESS",
+  "MONGODB",
+  "POSTGRES",
+  "DOCKER",
+  "KUBERNETES",
+  "WEBPACK",
+  "VITE",
+  "TAILWIND",
+];
+
+// Esta función mezcla el arreglo para que siempre sea aleatorio
+const shuffleArray = (array: string[]) => {
+  return [...array].sort(() => Math.random() - 0.5);
+};
+
+// Esta función mezcla las letras de la palabra
+const scrambleWord = (word: string = "") => {
+  return word
+    .split("")
+    .sort(() => Math.random() - 0.5)
+    .join("");
+};
 
 export const ScrambleWords = () => {
-  const [state, dispatch] = useReducer(scrambleWordsReducer, getInitialState());
+  const [words, setWords] = useState(shuffleArray(GAME_WORDS));
+  
+  const [currentWord, setCurrentWord] = useState(words[0]);
+  const [scrambledWord, setScrambledWord] = useState(scrambleWord(currentWord));
+  const [guess, setGuess] = useState("");
+  const [points, setPoints] = useState(0);
+  const [errorCounter, setErrorCounter] = useState(0);
+  const [maxAllowErrors, setMaxAllowErrors] = useState(3);
 
-  const {
-    words,
-    currentWord,
-    errorCounter,
-    guess,
-    isGameOver,
-    maxAllowErrors,
-    maxSkips,
-    points,
-    scrambledWord,
-    skipCounter,
-    totalWords,
-  } = state;
+  const [skipCounter, setSkipCounter] = useState(0);
+  const [maxSkips, setMaxSkips] = useState(3);
 
-  // const [words, setWords] = useState(shuffleArray(GAME_WORDS));
+  const [isGameOver, setIsGameOver] = useState(false);
 
-  // const [currentWord, setCurrentWord] = useState(words[0]);
-  // const [scrambledWord, setScrambledWord] = useState(scrambleWord(currentWord));
-  // const [guess, setGuess] = useState("");
-  // const [points, setPoints] = useState(0);
-  // const [errorCounter, setErrorCounter] = useState(0);
-  // const [maxAllowErrors, setMaxAllowErrors] = useState(3);
+  useEffect(() => {
+    if (errorCounter < 3) return;
 
-  // const [skipCounter, setSkipCounter] = useState(0);
-  // const [maxSkips, setMaxSkips] = useState(3);
+    setIsGameOver(true);
+    return () => {};
+  }, [errorCounter]);
 
-  // const [isGameOver, setIsGameOver] = useState(false);
+  const goToNextWord = () => {
+    if (words.length == 0) {
+      setIsGameOver(true);
+      return;
+    }
 
-  // useEffect(() => {
-  //   if (errorCounter < 3) return;
+    let index = words.indexOf(currentWord);
 
-  //   setIsGameOver(true);
-  //   return () => {};
-  // }, [errorCounter]);
+    index += 1;
 
-  // const goToNextWord = () => {
-  //   if (words.length == 0) {
-  //     setIsGameOver(true);
-  //     return;
-  //   }
+    let newWord = "";
+    if (index >= words.length) {
+      newWord = words[0];
+    } else {
+      newWord = words[index];
+    }
 
-  //   let index = words.indexOf(currentWord);
+    if (newWord === "") {
+      setIsGameOver(true);
+      return;
+    }
 
-  //   index += 1;
+    setCurrentWord(newWord);
 
-  //   let newWord = "";
-  //   if (index >= words.length) {
-  //     newWord = words[0];
-  //   } else {
-  //     newWord = words[index];
-  //   }
-
-  //   if (newWord === "") {
-  //     setIsGameOver(true);
-  //     return;
-  //   }
-
-  //   setCurrentWord(newWord);
-
-  //   setScrambledWord(scrambleWord(newWord));
-  // };
+    setScrambledWord(scrambleWord(newWord));
+  };
 
   const handleGuessSubmit = (e: React.SubmitEvent) => {
     // Previene el refresh de la página
     e.preventDefault();
 
-    dispatch({
-      type: "CHECK_ANSWER",
-    });
+    if (guess === currentWord) {
+      confetti({
+        spread: 120,
+        particleCount: 100,
+      });
+      setPoints((prev) => (prev += 1));
+      const newListOfWords = words.filter((word) => word != currentWord);
+      setWords(newListOfWords);
+      goToNextWord();
+    } else {
+      setErrorCounter((prev) => (prev += 1));
+    }
 
-    //   if (guess === currentWord) {
-    //     confetti({
-    //       spread: 120,
-    //       particleCount: 100,
-    //     });
-    //     setPoints((prev) => (prev += 1));
-    //     const newListOfWords = words.filter((word) => word != currentWord);
-    //     setWords(newListOfWords);
-    //     goToNextWord();
-    //   } else {
-    //     setErrorCounter((prev) => (prev += 1));
-    //   }
-
-    //   setGuess("");
+    setGuess("");
   };
 
-  // const handleSkip = () => {
-  //   if (skipCounter > 3) {
-  //     return;
-  //   }
-  //   setSkipCounter((prev) => prev + 1);
-  //   goToNextWord();
-  // };
+  const handleSkip = () => {
+    if (skipCounter > 3) {
+      return;
+    }
+    setSkipCounter((prev) => prev + 1);
+    goToNextWord();
+  };
 
-  // const handlePlayAgain = () => {
-  //   const newShuffledWords = shuffleArray(GAME_WORDS);
-  //   const firstWord = newShuffledWords[0];
-  //   setSkipCounter(0);
-  //   setErrorCounter(0);
-  //   setPoints(0);
-  //   setGuess("");
-  //   setIsGameOver(false);
-  //   setWords(newShuffledWords);
-  //   setCurrentWord(firstWord);
-  //   setScrambledWord(scrambleWord(firstWord));
-  // };
+  const handlePlayAgain = () => {
+    const newShuffledWords = shuffleArray(GAME_WORDS);
+    const firstWord = newShuffledWords[0];
+    setSkipCounter(0);
+    setErrorCounter(0);
+    setPoints(0);
+    setGuess("");
+    setIsGameOver(false);
+    setWords(newShuffledWords);
+    setCurrentWord(firstWord);
+    setScrambledWord(scrambleWord(firstWord));
+  };
 
   //! Si ya no hay palabras para jugar, se muestra el mensaje de fin de juego
   if (words.length === 0) {
@@ -135,11 +144,7 @@ export const ScrambleWords = () => {
           <br />
           <div>Saltos: {skipCounter}</div>
           <br />
-          <Button
-          // onClick={handlePlayAgain}
-          >
-            Jugar de nuevo
-          </Button>
+          <Button onClick={handlePlayAgain}>Jugar de nuevo</Button>
         </div>
       </div>
     );
@@ -201,10 +206,7 @@ export const ScrambleWords = () => {
                     type="text"
                     value={guess}
                     onChange={(e) =>
-                      dispatch({
-                        type: "SET_GUESS",
-                        payload: e.target.value,
-                      })
+                      setGuess(e.target.value.toUpperCase().trim())
                     }
                     placeholder="Ingresa tu palabra..."
                     className="text-center text-lg font-semibold h-12 border-2 border-indigo-200 focus:border-indigo-500 transition-colors"
@@ -226,7 +228,7 @@ export const ScrambleWords = () => {
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 text-center border border-green-200">
                 <div className="text-2xl font-bold text-green-600">
-                  {points} / {totalWords}
+                  {points} / {GAME_WORDS.length}
                 </div>
                 <div className="text-sm text-green-700 font-medium">Puntos</div>
               </div>
@@ -241,7 +243,7 @@ export const ScrambleWords = () => {
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
-                // onClick={handleSkip}
+                onClick={handleSkip}
                 variant="outline"
                 className="border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                 disabled={isGameOver || skipCounter >= maxSkips}
@@ -250,7 +252,7 @@ export const ScrambleWords = () => {
                 Saltar ({skipCounter} / {maxSkips})
               </Button>
               <Button
-                // onClick={handlePlayAgain}
+                onClick={handlePlayAgain}
                 variant="outline"
                 className="border-2 border-indigo-300 hover:border-indigo-400 hover:bg-indigo-50 text-indigo-600 transition-colors flex items-center justify-center gap-2"
               >
