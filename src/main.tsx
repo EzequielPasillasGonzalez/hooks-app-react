@@ -7,7 +7,8 @@ import "./index.css";
 // import { TasksApp } from "./05-useReducer/TaskApp.tsx";
 // import { TrafficLight } from "./01-useState/TrafficLight.tsx";
 // import { TrafficLightWithHook } from "./02-useEffect/TrafficLightWithHook.tsx";
-import { MemoHook } from "./06-memos/MemoHook.tsx";
+// import { MemoHook } from "./06-memos/MemoHook.tsx";
+import { MemoCounter } from "./06-memos/MemoCounter.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById("root")!).render(
     {/* <FocusScreen /> */}
     {/* <TasksApp /> */}
     {/* <ScrambleWords/> */}
-    <MemoHook />
+    {/* <MemoHook /> */}
+    <MemoCounter />
   </StrictMode>,
 );
