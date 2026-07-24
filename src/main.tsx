@@ -9,6 +9,7 @@ import "./index.css";
 // import { TrafficLightWithHook } from "./02-useEffect/TrafficLightWithHook.tsx";
 // import { MemoHook } from "./06-memos/MemoHook.tsx";
 import { MemoCounter } from "./06-memos/MemoCounter.tsx";
+import { InstagromApp } from "./07-useOptimistic/InstagromApp.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -21,6 +22,7 @@ createRoot(document.getElementById("root")!).render(
     {/* <TasksApp /> */}
     {/* <ScrambleWords/> */}
     {/* <MemoHook /> */}
-    <MemoCounter />
+    {/* <MemoCounter /> */}
+    <InstagromApp />
   </StrictMode>,
 );
