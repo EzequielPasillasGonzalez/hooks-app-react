@@ -26,54 +26,6 @@ export const ScrambleWords = () => {
     totalWords,
   } = state;
 
-  // const [words, setWords] = useState(shuffleArray(GAME_WORDS));
-
-  // const [currentWord, setCurrentWord] = useState(words[0]);
-  // const [scrambledWord, setScrambledWord] = useState(scrambleWord(currentWord));
-  // const [guess, setGuess] = useState("");
-  // const [points, setPoints] = useState(0);
-  // const [errorCounter, setErrorCounter] = useState(0);
-  // const [maxAllowErrors, setMaxAllowErrors] = useState(3);
-
-  // const [skipCounter, setSkipCounter] = useState(0);
-  // const [maxSkips, setMaxSkips] = useState(3);
-
-  // const [isGameOver, setIsGameOver] = useState(false);
-
-  // useEffect(() => {
-  //   if (errorCounter < 3) return;
-
-  //   setIsGameOver(true);
-  //   return () => {};
-  // }, [errorCounter]);
-
-  // const goToNextWord = () => {
-  //   if (words.length == 0) {
-  //     setIsGameOver(true);
-  //     return;
-  //   }
-
-  //   let index = words.indexOf(currentWord);
-
-  //   index += 1;
-
-  //   let newWord = "";
-  //   if (index >= words.length) {
-  //     newWord = words[0];
-  //   } else {
-  //     newWord = words[index];
-  //   }
-
-  //   if (newWord === "") {
-  //     setIsGameOver(true);
-  //     return;
-  //   }
-
-  //   setCurrentWord(newWord);
-
-  //   setScrambledWord(scrambleWord(newWord));
-  // };
-
   const handleGuessSubmit = (e: React.SubmitEvent) => {
     // Previene el refresh de la página
     e.preventDefault();
@@ -81,43 +33,15 @@ export const ScrambleWords = () => {
     dispatch({
       type: "CHECK_ANSWER",
     });
-
-    //   if (guess === currentWord) {
-    //     confetti({
-    //       spread: 120,
-    //       particleCount: 100,
-    //     });
-    //     setPoints((prev) => (prev += 1));
-    //     const newListOfWords = words.filter((word) => word != currentWord);
-    //     setWords(newListOfWords);
-    //     goToNextWord();
-    //   } else {
-    //     setErrorCounter((prev) => (prev += 1));
-    //   }
-
-    //   setGuess("");
   };
 
-  // const handleSkip = () => {
-  //   if (skipCounter > 3) {
-  //     return;
-  //   }
-  //   setSkipCounter((prev) => prev + 1);
-  //   goToNextWord();
-  // };
+  const handleSkip = () => {
+    dispatch({ type: "SKIP_WORD" });
+  };
 
-  // const handlePlayAgain = () => {
-  //   const newShuffledWords = shuffleArray(GAME_WORDS);
-  //   const firstWord = newShuffledWords[0];
-  //   setSkipCounter(0);
-  //   setErrorCounter(0);
-  //   setPoints(0);
-  //   setGuess("");
-  //   setIsGameOver(false);
-  //   setWords(newShuffledWords);
-  //   setCurrentWord(firstWord);
-  //   setScrambledWord(scrambleWord(firstWord));
-  // };
+  const handlePlayAgain = () => {
+    dispatch({ type: "PLAY_AGAIN", payload: getInitialState() });
+  };
 
   //! Si ya no hay palabras para jugar, se muestra el mensaje de fin de juego
   if (words.length === 0) {
@@ -135,11 +59,7 @@ export const ScrambleWords = () => {
           <br />
           <div>Saltos: {skipCounter}</div>
           <br />
-          <Button
-          // onClick={handlePlayAgain}
-          >
-            Jugar de nuevo
-          </Button>
+          <Button onClick={handlePlayAgain}>Jugar de nuevo</Button>
         </div>
       </div>
     );
@@ -241,7 +161,7 @@ export const ScrambleWords = () => {
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
-                // onClick={handleSkip}
+                onClick={handleSkip}
                 variant="outline"
                 className="border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                 disabled={isGameOver || skipCounter >= maxSkips}
@@ -250,7 +170,7 @@ export const ScrambleWords = () => {
                 Saltar ({skipCounter} / {maxSkips})
               </Button>
               <Button
-                // onClick={handlePlayAgain}
+                onClick={handlePlayAgain}
                 variant="outline"
                 className="border-2 border-indigo-300 hover:border-indigo-400 hover:bg-indigo-50 text-indigo-600 transition-colors flex items-center justify-center gap-2"
               >

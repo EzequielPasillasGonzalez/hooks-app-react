@@ -15,7 +15,8 @@ export interface ScrambleWordsState {
 export type ScrambleWordsActions =
   | { type: "SET_GUESS"; payload: string }
   | { type: "CHECK_ANSWER" }
-  | { type: "SKIP_WORD" };
+  | { type: "SKIP_WORD" }
+  | { type: "PLAY_AGAIN"; payload: ScrambleWordsState };
 
 const GAME_WORDS = [
   "REACT",
@@ -72,32 +73,6 @@ export const scrambleWordsReducer = (
   state: ScrambleWordsState,
   action: ScrambleWordsActions,
 ): ScrambleWordsState => {
-  // const goToNextWord = () => {
-  //   if (words.length == 0) {
-  //     setIsGameOver(true);
-  //     return;
-  //   }
-
-  //   let index = words.indexOf(currentWord);
-
-  //   index += 1;
-
-  //   let newWord = "";
-  //   if (index >= words.length) {
-  //     newWord = words[0];
-  //   } else {
-  //     newWord = words[index];
-  //   }
-
-  //   if (newWord === "") {
-  //     setIsGameOver(true);
-  //     return;
-  //   }
-
-  //   setCurrentWord(newWord);
-
-  //   setScrambledWord(scrambleWord(newWord));
-  // };
   switch (action.type) {
     case "SET_GUESS":
       return {
@@ -125,6 +100,25 @@ export const scrambleWordsReducer = (
         isGameOver: state.errorCounter + 1 >= state.maxAllowErrors,
       };
     }
+
+    case "SKIP_WORD": {
+      if (state.skipCounter >= state.maxSkips) return state;
+
+      const updatedWords = state.words.slice(1);
+
+      return {
+        ...state,
+        skipCounter: state.skipCounter + 1,
+        words: updatedWords,
+        currentWord: updatedWords[0],
+        scrambledWord: scrambleWord(updatedWords[0]),
+        guess: "",
+      };
+    }
+
+    case "PLAY_AGAIN":
+      return action.payload;
+
     default:
       return state;
   }
