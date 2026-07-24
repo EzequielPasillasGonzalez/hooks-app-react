@@ -26,6 +26,15 @@ export const ScrambleWords = () => {
     totalWords,
   } = state;
 
+  useEffect(() => {
+    if (points === 0) return;
+    confetti({
+      spread: 120,
+      origin: { y: 0.6 },
+      particleCount: 100,
+    });
+  }, [points]);
+
   const handleGuessSubmit = (e: React.SubmitEvent) => {
     // Previene el refresh de la página
     e.preventDefault();
